@@ -9,7 +9,7 @@
   "version": "0.0.1",
   "homepage": "https://www.json2html.com",
   "repository": {
-    "url": "git://github.com/moappi/json2html.git"
+    "url": "git://github.com/moappi/j2h-framework.git"
   },
   "keywords": [
     "json2html",
