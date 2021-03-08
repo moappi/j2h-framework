@@ -1,0 +1,32 @@
+{
+  "author": {
+    "name": "Chad Brown",
+    "email": "info@json2html.com",
+    "url": "https://www.json2html.com"
+  },
+  "name": "j2h-framework",
+  "description": "j2h - json2html Web Framework",
+  "version": "0.0.1",
+  "homepage": "https://www.json2html.com",
+  "repository": {
+    "url": "git://github.com/moappi/json2html.git"
+  },
+  "keywords": [
+    "json2html",
+    "templating",
+    "html",
+    "web",
+    "framework",
+    "json"
+  ],
+  "main": "j2h.js",
+  "dependencies": {
+        "lodash": "latest",
+        "node-json2html": "latest",
+        "serialize-javascript": "latest",
+        "terser": "latest"
+    },
+  "engines": {
+    "node": "*"
+  }
+}
