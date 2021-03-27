@@ -1,0 +1,8 @@
+{
+  "name": "j2h-framework example project",
+  "dependencies": {},
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "main": "service.js"
+}
