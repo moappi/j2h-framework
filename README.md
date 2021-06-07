@@ -1,8 +1,12 @@
 
+j2h framework is a featherweight rendering framework for 
 
-j2h framework is a featherweight rendering framework for [express](https://expressjs.com/)
+- node.js using [express](https://expressjs.com/)
+- browser using page.js [experimental]
 
-uses [json2html templates](https://json2html.com)
+exclusively for [json2html templates](https://json2html.com)
+
+## Node.js (Server)
 
 Features
 ---------------
@@ -101,7 +105,9 @@ class Page extends j2h.Page {
         // you have full control of the response
         
         //or get j2h to render this page for us
-        super(req,res,next);
+        // the data object is the optional data object to pass when rendering
+        // if the data object is omitted here then the data function will be used instead
+        super(req,res,next,data);
     }
     
     async data(req) {
@@ -128,7 +134,7 @@ What's the difference between the 'data' and 'render' methods?
 When rendering a page j2h first calls the render method, then the data method to get the data object to render. Here's when you want to use them
 
 +   **data method** use to format the data for the page, remember whatever you return here is sent directly for rendering with the template [ie just like json2html.render(data,template)]
-+   **render method** use this method to perform your page logic (ie check middleware, access, get data from a database etc..) You'll have full access to the response so you can do things like redirect to an error page if you ran into trouble. Remember you can store whatever you like in the instance of the page (ie using this) and then retrieve it with the data method before passing it along for rendering. **Make sure to call the super render function if you want j2h to continue rendering the page!**
++   **render method** use this method to perform your page logic (ie check middleware, access, get data from a database etc..) You'll have full access to the response so you can do things like redirect to an error page if you ran into trouble. If you're already pulling the data inside the render function you can pass the data object to the super.render function eg super.render(res,req,next,{"my":"data}) **Make sure to call the super render function if you want j2h to continue rendering the page!**
 
 
 Components

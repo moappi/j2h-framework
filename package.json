@@ -6,7 +6,7 @@
   },
   "name": "j2h-framework",
   "description": "j2h - Featherweight Rendering Framework for Express",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "homepage": "https://www.json2html.com",
   "repository": {
     "url": "git://github.com/moappi/j2h-framework.git"
@@ -20,7 +20,7 @@
     "json",
     "rendering"
   ],
-  "main": "j2h.js",
+  "main": "node.j2h.js",
   "dependencies": {
         "lodash": "latest",
         "node-json2html": "latest",

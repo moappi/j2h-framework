@@ -21,7 +21,7 @@ class Page extends j2h.Page {
                     
                     //Required for client interactivity
                     {"<>":"script","src":"//ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"},
-                    {"<>":"script","src":"//da-proxy.dakolor.com/app/1.0.0/assets/js/json2html.js"}
+                    {"<>":"script","src":"//cdnjs.cloudflare.com/ajax/libs/json2html/2.1.0/json2html.min.js"}
                 ]},
                 {"<>":"body","html":[
                     
@@ -43,24 +43,13 @@ class Page extends j2h.Page {
                         
                         //Get the list of items
                         // we'll use a component so we can add these on the client as well
-                        {"[]":"item","data":function(){
+                        {"[]":"item","obj":function(){
                             return(this.items);
                         }}
                     ]}
                 ]}
             ]}
         ];
-    }
-    
-    //Async function to intercept before we render
-    async render(req,res,next) {
-        
-        //Check something and output and error page??
-        // you have full control of the response
-        // note that render is called BEFORE data
-        
-        //or get j2h to render this page for us
-        super(req,res,next);
     }
     
     //Async function to get data for this page
@@ -83,6 +72,34 @@ class Page extends j2h.Page {
             ]
         });
     }
+    
+    //Async function to intercept before we render
+    async render(req,res,next) {
+        
+        //Check something and output and error page??
+        // you have full control of the response
+        // note that render is called BEFORE data
+        
+        //or get j2h to render this page for us
+        super.render(req,res,next);
+        
+        //instead of calling data you could also pass the data directly to the render page
+        /*
+        super.render(req,res,next,{
+            "title":"My First Hybrid Page",
+            
+            //Items for our list
+            "items":[
+                {"text":"server item 1"},
+                {"text":"server item 2"},
+                {"text":"server item 3"},
+                {"text":"server item 4"}
+            ]
+        }
+        */
+    }
+    
+    
 }
 
 module.exports = new Page();  
