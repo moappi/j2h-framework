@@ -6,18 +6,12 @@ j2h framework is a featherweight rendering framework for
 
 exclusively for [json2html templates](https://json2html.com)
 
-## Node.js (Server)
-
-Features
----------------
-
 +   json2html template support for both pages and components
 +   Render fully interactive html pages
 +   Seemless use of the same templates on the client and server
 +   Ultra simple integration with express (in one line of code)
 
-Get Started
-===============
+# Node.js (Server)
 
 The j2h framework simply extends your express routing by adding an app.page method to render j2h pages.  
 
@@ -48,8 +42,7 @@ app.page("/",home);
 app.listen(80);
 ```
 
-Pages
-===============
+## Pages
 
 Simply extend our j2h.Page class, then modify 
 
@@ -64,8 +57,7 @@ Don't forget to specify the render mode by calling the super contructor with eit
 +   **"server"** which will render a flat html page
 +   **"hybrid"**  which renders interactive html that includes events sepcified in your page or components.  json2html will take care of rehydrating these events for you on the client, just make sure to include jquery and json2html on the client! You'll also be able to reference your components on the client (see Components for configuration)
 
-Page Example
----------------
+### Example
 
 ```javascript
 
@@ -126,8 +118,7 @@ module.exports = new Page();
     
 ```
 
-Data or Render?
----------------
+## Data or Render?
 
 What's the difference between the 'data' and 'render' methods?  
 
@@ -137,8 +128,7 @@ When rendering a page j2h first calls the render method, then the data method to
 +   **render method** use this method to perform your page logic (ie check middleware, access, get data from a database etc..) You'll have full access to the response so you can do things like redirect to an error page if you ran into trouble. If you're already pulling the data inside the render function you can pass the data object to the super.render function eg super.render(res,req,next,{"my":"data}) **Make sure to call the super render function if you want j2h to continue rendering the page!**
 
 
-Components
-===============
+##Components
 
 Simply extend our j2h.Component class and modify
 
@@ -147,8 +137,7 @@ Simply extend our j2h.Component class and modify
 +   **components (optional)** components object that this component directly uses. You'll need you use a unique name across your project
 +   **client (optional)** (default false) if true then the component will be availabe on the client via json2html.component.get(name) (in hybrid render mode). Otherwise component will not be available on the client.
 
-Component Example
----------------
+### Example
 
 ```javascript
 
@@ -180,8 +169,105 @@ module.exports = new Component();
     
 ```
 
-Project Status
-===============
+# Browser (Client)
 
+j2h-framework can also be used on the browser, note that this is still experimental.
+
+## Dependancies
+
+- json2html (2.1.0+)
+- jquery (3.6.0+)
+- page.js (1.8.5+)
+
+
+## Getting Started
+
+j2h-framework for the browser uses page.js instead of express, but it's very similar.
+
+Note that instead of using require, you can use j2h.require which is an async function to include your pages
+
+```javascript
+(async function() {
+    
+    //Pages that we want to 
+    let pages = {
+        "home":await j2h.require("/pages/home.js"),
+        "user":await j2h.require("/pages/user.js")
+    };
+    
+    //Optional middleware
+    j2h.app.use((req,res,next)=>{
+        
+        //Apply middleware here
+        // recommend using localStorage to store session data
+        
+        next();
+    });
+    
+    //Apply the routes
+    j2h.app.page("/",pages.home);
+    j2h.app.page("/user/:user",pages.user);
+    
+    j2h.app.listen();
+    
+})();  
+```
+
+### Page Example
+
+You'll be able to use the same struture for a page as the server version, the exceptions are
+
+- use j2h.export to export your pages for use with j2h
+- use a string to specify the absolute path of your components
+
+```javascript
+j2h.export("/pages/home.js",(
+
+    class extends j2h.Page {
+    
+        constructor(){
+            
+            super();
+            
+            //Componets that this page uses
+            // note that /components/test.js MUST be a j2h.Component exported using j2h.export()
+            this.components = {
+                "user":"/components/user.js"
+            };
+            
+            //Component template
+            this.template = [
+                
+                {"<>":"section","html":[
+                    {"<>":"h2","text":"Home Page"},
+                    {"<>":"ul","html":[
+                        {"[]":"user","obj":function(){
+                            return(this.users);  
+                        }}
+                    ]}
+                ]}
+                
+            ];
+        }
+        
+        //Data method
+        // returns the data we want to render for this page
+        async data(req) {
+            
+            //check to see if we have a user to render
+            // get the user from the api
+            return({
+                "users":[
+                    {"name":"Bill Brown","user":"bill"},
+                    {"name":"Jane Brown","user":"jane"},
+                ]
+            });
+        }
+    }
+
+));
+```
+
+# Project Status
 We need help!  We'd love help with writing tests, creating better examples or some much needed documentation :)
 

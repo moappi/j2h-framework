@@ -2,7 +2,6 @@
 //j2h-framework for the browser (client)
 // requires json2html (2.1.0+), jquery (1.9+), page.js (1.8.5+)
 
-//Namespace
 var j2h = {
     
     //============================ Public ==============================
@@ -149,7 +148,7 @@ j2h.Page = class extends j2h.Obj {
     //Render this page
     // req = {"params"}
     // res = (reconstruct same as express)
-    async render(req,res,data){
+    async render(req,res){
         
         let base = this;
         
@@ -158,7 +157,7 @@ j2h.Page = class extends j2h.Obj {
         
         //Get the data for this page
         // allow access to request
-        if(data === undefined) data = await base.data(req);
+        let data = await base.data(req);
         
         //Get the all the components to render this page
         // include sub components as well
@@ -392,7 +391,6 @@ j2h.Router = class {
         if(dispatch) base._pagejs();
     }
     
-    //Redirect to another page
     redirect(path) {
         this._pagejs.redirect(path);    
     }
@@ -434,4 +432,3 @@ j2h.app = new j2h.Router();
 
 //Setup the events
 j2h._events();
-
