@@ -128,7 +128,7 @@ When rendering a page j2h first calls the render method, then the data method to
 +   **render method** use this method to perform your page logic (ie check middleware, access, get data from a database etc..) You'll have full access to the response so you can do things like redirect to an error page if you ran into trouble. If you're already pulling the data inside the render function you can pass the data object to the super.render function eg super.render(res,req,next,{"my":"data}) **Make sure to call the super render function if you want j2h to continue rendering the page!**
 
 
-##Components
+## Components
 
 Simply extend our j2h.Component class and modify
 
