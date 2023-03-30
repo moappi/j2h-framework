@@ -4,11 +4,17 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+	
+	<!-- Check if we're running on file system, needs to be hosted on a webserver -->
+	<script>
+		if( window.location.protocol == 'file:' ) document.write("<h1>Ooops this example can't run on the file system.  Please run from a webserver so that page.js can correctly set the url of the pages.</h1>");
+	</script>
     
-    <!-- j2h required -->
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/json2html/2.1.0/json2html.min.js"></script>
+	<!-- j2h required -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/json2html/2.2.3/json2html.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/page.js/1.8.5/page.js"></script>
+
     <script src="../../j2h.js"></script>
     
     <!-- app specific -->
