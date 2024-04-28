@@ -33,7 +33,7 @@ const app = require("express")(),
 app.page = j2h.express.page;
 
 //your j2h page
-const home = require("./pages/home.js");
+const home = new require("./pages/home.js")();
 
 //route to your page
 app.page("/",home);
