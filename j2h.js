@@ -1,5 +1,5 @@
 
-//     j2h-framework.js 1.1.0
+//     j2h-framework.js 1.1.1
 //     https://www.json2html.com
 //     (c) 2006-2024 Crystalline Technologies
 //     j2h-framework may be freely distributed under the MIT license.
@@ -100,9 +100,11 @@ j2h.Obj = class {
             // in json2html
             if(!json2html.component.get(_name)) {
             
+                //Try loading the component using j2h.require
+                // this will use cached components
                 try {
                     //Load the script from the path
-                    await j2h._load(_path);
+                    await j2h.require(_path);
                 } catch(e) {
                     continue;
                 }
