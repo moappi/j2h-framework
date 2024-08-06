@@ -1,5 +1,5 @@
 
-//     j2h-framework.js 1.1.1
+//     j2h-framework.js 1.2.0
 //     https://www.json2html.com
 //     (c) 2006-2024 Crystalline Technologies
 //     j2h-framework may be freely distributed under the MIT license.
@@ -131,7 +131,7 @@ j2h.Obj = class {
 
 j2h.Page = class extends j2h.Obj {
     
-    constructor(ele){
+    constructor(){
         
         super();
         
@@ -146,7 +146,10 @@ j2h.Page = class extends j2h.Obj {
         //Query select OR element
         // if ele is string we'll check for this element every time we render
         // ensures if the element is removed/replaced then we still can find it later
-        this._ele = ele;
+        this._ele = undefined;
+        
+        //Loading component (optional)
+        this._loading = undefined;
     }
     
     // ============================= Public Inherited Methods ==================== 
@@ -163,14 +166,6 @@ j2h.Page = class extends j2h.Obj {
     async render(req,res){
         
         let base = this;
-        
-        //Get the data for this page
-        // allow access to request
-        let data = await base.data(req);
-        
-        //Set the components 
-        // save them into json2html.components
-        await base.setComponents();
         
         //Find the parent
         let parent;
@@ -189,7 +184,34 @@ j2h.Page = class extends j2h.Obj {
         //Exit if we don't have a valid parent element
         if(!parent) return;
         
+        //Render the loading component (if we have one)
+        if(base._loading) {
+            
+            //Get the loading component (using the name)
+            let loading = json2html.component.get(base._loading);
+            
+            //Check to see if we have a valid json2html component
+            if(loading) {
+                
+                //Clear the element children
+                parent.innerHTML = "";
+                
+                //Render the component
+                // no data object
+                parent.json2html({},loading);
+            }
+        }
+        
+        //Get the data for this page
+        // allow access to request
+        let data = await base.data(req);
+        
+        //Set the components 
+        // save them into json2html.components
+        await base.setComponents();
+        
         //Clear the element children
+        // gets rid of loading stuff
         parent.innerHTML = "";
         
         //Render the html with events
@@ -260,8 +282,18 @@ j2h.Router = class {
         
         //Default config
         this._config = {
+            
+            //Render
             "render":{
+                
+                //HTML query string OR HTML Element
                 "ele":"body"
+            },
+            
+            //Component used for loading
+            // string
+            "loading":{
+                "component":undefined
             }
         };
         
@@ -287,6 +319,8 @@ j2h.Router = class {
         
         let base = this;
         
+        console.log("NEW.PAGE",base._config);
+        
         //Add the page
         base._routes.push({
             
@@ -294,7 +328,7 @@ j2h.Router = class {
             "path":path,
             
             //New page
-            "page":new Page(base._config.render.ele)
+            "page":new Page(base._config)
         });
     }
     
@@ -350,8 +384,12 @@ j2h.Router = class {
         //Route the pages
         for(let _route of base._routes) {
             
-            //Add the element that we'll render too
+            //Add the element that we'll rendering on
             _route.page._ele = this._config.render.ele;
+            
+            //Add the loading component
+            if(this._config.loading)
+                _route.page._loading = this._config.loading.component;
             
             //Route the page
             ((__route)=>{
@@ -372,12 +410,8 @@ j2h.Router = class {
                     let req = new j2h.Request(ctx),
                         res = new j2h.Response();
                     
-                    //Render the page when  
-                    //$(function(){
-                        //Don't wait up for this to complete
-                        //Render the page
-                        __route.page.render(req,res);
-                    //});
+                    //Render the page
+                    __route.page.render(req,res);
                 });
                 
             })(_route);
@@ -425,7 +459,11 @@ j2h.Router = class {
 };
 
 //Create a new router for the default app
-j2h.app = new j2h.Router();
+j2h.app = new j2h.Router({
+    "render":{
+        "ele":"body"
+    }
+});
 
 //Setup the events
 j2h._events();
