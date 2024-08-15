@@ -1,5 +1,5 @@
 
-//     j2h-framework.js 1.2.0
+//     j2h-framework.js 1.2.1
 //     https://www.json2html.com
 //     (c) 2006-2024 Crystalline Technologies
 //     j2h-framework may be freely distributed under the MIT license.
@@ -28,6 +28,12 @@ var j2h = {
         await base._load(path);
         
         return(base._exports[path]);
+    },
+    
+    //============================ Public (json2html helper) ==============================
+    
+    "trigger":function(event){
+        json2html.trigger(event);
     },
     
     //Public classes
@@ -318,8 +324,6 @@ j2h.Router = class {
     page(path,Page) {
         
         let base = this;
-        
-        console.log("NEW.PAGE",base._config);
         
         //Add the page
         base._routes.push({
