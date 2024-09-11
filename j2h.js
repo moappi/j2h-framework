@@ -1,5 +1,5 @@
 
-//     j2h-framework.js 1.2.1
+//     j2h-framework.js 1.2.2
 //     https://www.json2html.com
 //     (c) 2006-2024 Crystalline Technologies
 //     j2h-framework may be freely distributed under the MIT license.
@@ -32,8 +32,14 @@ var j2h = {
     
     //============================ Public (json2html helper) ==============================
     
-    "trigger":function(event){
-        json2html.trigger(event);
+    //DEPRECATED
+    "trigger":function(id){
+        json2html.trigger(id);
+    },
+    
+    //SHIM for json2html.refresh
+    "refresh":function(id){
+        json2html.trigger(id);
     },
     
     //Public classes
