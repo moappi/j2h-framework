@@ -20,8 +20,8 @@ class Page extends j2h.Page {
                     {"<>":"title","text":"${title}"},
                     
                     //Required for client interactivity
-                    {"<>":"script","src":"//ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"},
-                    {"<>":"script","src":"//cdnjs.cloudflare.com/ajax/libs/json2html/2.1.0/json2html.min.js"}
+                    {"<>":"script","src":"//ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"},
+                    {"<>":"script","src":"//cdnjs.cloudflare.com/ajax/libs/json2html/3.3.3/json2html.min.js"}
                 ]},
                 {"<>":"body","html":[
                     
@@ -43,9 +43,7 @@ class Page extends j2h.Page {
                         
                         //Get the list of items
                         // we'll use a component so we can add these on the client as well
-                        {"[]":"item","obj":function(){
-                            return(this.items);
-                        }}
+                        {"[]":"item","{}":o=>o.items}
                     ]}
                 ]}
             ]}

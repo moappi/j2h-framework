@@ -2,7 +2,7 @@
 j2h framework is a featherweight rendering framework for 
 
 - node.js using [express](https://expressjs.com/)
-- browser using page.js [experimental]
+- browser using page.js
 
 exclusively for [json2html templates](https://json2html.com)
 
@@ -71,7 +71,7 @@ class Page extends j2h.Page {
     constructor() {
       
         //Call the super constructor and signal what kind of page rendering we want to use
-        super("hybrid");
+        super("server");
         
         //Components that this page directly uses
         // NOTE these need to be unique across the entire project
@@ -87,7 +87,7 @@ class Page extends j2h.Page {
                 ]},
                 {"<>":"body","text":[
                     {"<>":"h2","text":"${title}"},
-                    {"[]":"link"}
+                    {"[]":"link","{}":o=>o.link}
                 ]}
             ]}
         ];
@@ -112,7 +112,7 @@ class Page extends j2h.Page {
         
         return({
             "title":"My First j2h Page",
-            "url":"https://www.json2html.com"
+            "link":{"url":"https://www.json2html.com","title":"My First Link!"}
         });
     }
 }
@@ -244,9 +244,7 @@ j2h.export("/pages/home.js",(
                 {"<>":"section","html":[
                     {"<>":"h2","text":"Home Page"},
                     {"<>":"ul","html":[
-                        {"[]":"user","obj":function(){
-                            return(this.users);  
-                        }}
+                        {"[]":"user","{}":o=>o.users}
                     ]}
                 ]}
                 

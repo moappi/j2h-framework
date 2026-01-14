@@ -18,9 +18,7 @@ j2h.export("/pages/home.js",(
                 {"<>":"section","html":[
                     {"<>":"h2","text":"Home Page"},
                     {"<>":"ul","html":[
-                        {"[]":"user","obj":function(){
-                            return(this.users);  
-                        }}
+                        {"[]":"user","{}":o=>o.users}
                     ]}
                 ]}
                 
