@@ -1,5 +1,5 @@
 
-//     j2h-framework.js 2.1.0
+//     j2h-framework.js 2.2.0
 //     https://www.json2html.com
 //     (c) 2006-2026 Crystalline Technologies
 //     j2h-framework may be freely distributed under the MIT license.
@@ -247,7 +247,7 @@
                     
                     //Check to see if we have this component loaded
                     if(typeof(j2h.module.get(_path)) !== "function") {
-                        console.error("Unable to load component ",_name,"(",_path,").  Did you use j2h.export?");
+                        console.error(`Unable to load component ${_name} (${_path}).  Did you use j2h.export?`);
                         continue;
                     }
                     
@@ -302,6 +302,14 @@
         async render(req,res){
             
             let base = this;
+
+            //Create a new render id for this page
+            let renderId = _id();
+
+            //console.log("PAGE.RENDERING",req.pathname,renderId);
+
+            //Push into the rendering stack
+            j2h.app._rendering = renderId;
             
             //Find the parent
             let parent;
@@ -342,6 +350,15 @@
             //Get the data for this page
             // allow access to request
             let data = await base.data(req,j2h.app.state);
+
+            //Check to make sure we're still needing this page rendered
+            if(j2h.app._rendering !== renderId) {
+                //console.log("PAGE.RENDERING.CANCELLED",renderId);
+                return;
+            }
+
+            //Clear this rendered page
+            j2h.app._rendering = undefined;
             
             let obj = data;
             
@@ -359,6 +376,8 @@
             
             //Render the html with events
             parent.json2html(obj,base.template);
+
+            //console.log("PAGE.RENDERING.FINISHED",renderId);
         }
     };
     
@@ -999,6 +1018,9 @@
             //Previous context
             // (if we have one)
             this._prev;
+
+            //Current page we're rendering
+            this._rendering;
         }
         
         //============================ Public ==============================
@@ -1286,4 +1308,4 @@
     return(j2h);
 
 })));
-   
+    
