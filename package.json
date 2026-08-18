@@ -6,7 +6,7 @@
   },
   "name": "j2h-framework",
   "description": "j2h - Featherweight Rendering Framework for Express",
-  "version": "1.0.0",
+  "version": "3.0.0",
   "homepage": "https://www.json2html.com",
   "repository": {
     "url": "git://github.com/moappi/j2h-framework.git"
@@ -27,6 +27,24 @@
         "serialize-javascript": "latest",
         "terser": "latest"
     },
+  "devDependencies": {
+    "mocha": "^10.4.0",
+    "chai": "^4.4.1",
+    "sinon": "^17.0.1",
+    "jsdom": "^24.0.0",
+    "proxyquire": "^2.1.3",
+    "supertest": "^6.3.4",
+    "express": "^4.19.2",
+    "nyc": "^15.1.0",
+    "playwright": "^1.44.0"
+  },
+  "scripts": {
+    "test": "mocha --recursive test/server test/client test/integration",
+    "test:server": "mocha --recursive test/server test/integration/server-rendering.test.js",
+    "test:client": "mocha --recursive test/client test/integration/client-rendering.test.js",
+    "test:e2e": "mocha test/e2e/browser-e2e.test.js --timeout 20000",
+    "coverage": "nyc --reporter=text --reporter=html npm test"
+  },
   "engines": {
     "node": ">=10.0.0"
   }

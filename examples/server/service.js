@@ -5,12 +5,10 @@ const app = require("express")(),
 app.page = j2h.express.page;
 
 //your j2h pages
-const home = require("./pages/home.js"),
-      hybrid = require("./pages/hybrid.js");
+const home = require("./pages/home.js");
 
 //route to your pages
 app.page("/",home);
-app.page("/hybrid",hybrid);
 
 //listen
 app.listen(80);

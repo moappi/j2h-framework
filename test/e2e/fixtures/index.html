@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>j2h-framework example (E2E harness copy)</title>
+
+    <!--
+        This is examples/client/index.html, adapted ONLY to point at
+        locally-vendored copies of json2html/page.js instead of cdnjs (which
+        isn't reachable from every CI/sandbox network), and to load the real
+        framework source from the repo root instead of a bundled copy. The
+        app itself - lib/app.js, pages/home.js, pages/user.js,
+        components/user.js - is served unmodified straight from
+        examples/client/ by test/e2e/server.js.
+    -->
+    <script src="/vendor/page.js"></script>
+    <script src="/vendor/json2html.js"></script>
+    <script src="/js/j2h.js"></script>
+
+    <!-- app specific (the REAL, unmodified example files) -->
+    <script src="/lib/app.js"></script>
+</head>
+
+</html>

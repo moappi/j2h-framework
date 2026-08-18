@@ -1,5 +1,5 @@
 
-//     j2h-framework.js 2.2.0
+//     j2h-framework.js 3.0.0
 //     https://www.json2html.com
 //     (c) 2006-2026 Crystalline Technologies
 //     j2h-framework may be freely distributed under the MIT license.
@@ -80,7 +80,12 @@
                 let key = base._toKey(path[index]),
                     newValue = value;
                 
-                if (key === '__proto__' || key === 'constructor' || key === 'prototype') return object;
+                // Return an empty "updated paths" array (not `object`) here -
+                // State.set() calls `.reverse()` on whatever this returns, so
+                // returning `object` (which has no .reverse) turned a
+                // correctly-blocked pollution attempt into a crash instead of
+                // a clean no-op.
+                if (key === '__proto__' || key === 'constructor' || key === 'prototype') return [];
             
                 if (index != lastIndex) {
                     let objValue = nested[key];
@@ -105,7 +110,30 @@
             // this will be a recursive list
             return(updated);
         },
-        
+
+        //Removes the property at path from object (supports dotted/array
+        // paths, unlike a bare `delete object[path]` which only works for a
+        // literal, single-segment key)
+        "unset":function(object, path) {
+
+            let base = this;
+
+            if(object == null) return true;
+
+            path = base._castPath(path, object);
+
+            //Navigate to the parent of the final key so we can delete
+            // just that one property (walking nested objects/arrays along
+            // the way, same as get())
+            let parent = path.length < 2 ? object : base.get(object, path.slice(0, -1));
+
+            if(parent == null) return true;
+
+            let key = base._toKey(path[path.length - 1]);
+
+            return(delete parent[key]);
+        },
+
         //============================ Private ==============================
         
         //from LODASH
@@ -221,48 +249,58 @@
         //Get the components for this object
         // add them to the global json2html components
         async setComponents(){
-            
+
             let base = this;
-            
+
             if(!base.components) return;
-            
-            //Itterate over the components for this page
-            for(let _name in base.components) {
-                
+
+            //Load every component CONCURRENTLY instead of one at a time.
+            // Each component's own import -> instantiate -> recurse chain is
+            // still sequential (a component's sub-components can't register
+            // until the component itself has loaded), but independent
+            // top-level components no longer wait on each other's network
+            // round trip - a page with N components used to take roughly
+            // the SUM of every component's load time; it now takes roughly
+            // the load time of the SLOWEST one. Each component's chain is
+            // caught independently (via the inner try/catch and the
+            // typeof-check below) so one bad/missing component still can't
+            // block or fail the others, matching the original behavior.
+            await Promise.all(Object.keys(base.components).map(async (_name) => {
+
                 let _path = base.components[_name],
                     _component;
-                
+
                 //Load the component if we don't already have it
                 // in json2html
                 if(!json2html.component.get(_name)) {
-                
+
                     //Try loading a component
                     // this will use cached components
                     try {
                         //Load the script from the path
                         await j2h.module.import(_path);
                     } catch(e) {
-                        continue;
+                        return;
                     }
-                    
+
                     //Check to see if we have this component loaded
                     if(typeof(j2h.module.get(_path)) !== "function") {
                         console.error(`Unable to load component ${_name} (${_path}).  Did you use j2h.export?`);
-                        continue;
+                        return;
                     }
-                    
+
                     //Create a new instance of this component
                     _component = new j2h.module._exports[_path]();
-                    
+
                     //Add the component template to json2html
                     json2html.component.add(_name,_component.template);
-                    
+
                     //Get the sub components used by this component
                     await _component.setComponents();
                 }
-            }
+            }));
         }
-        
+
     };
     
     j2h.Page = class extends j2h.Obj {
@@ -309,6 +347,9 @@
             //console.log("PAGE.RENDERING",req.pathname,renderId);
 
             //Push into the rendering stack
+            // MUST be for the entire app as multiple pages can be rendered to the same HTML element
+            // this prevents a page that hasn't yet rendred (ie waiting for data) to be "cancelled" and another page called
+            // otherwise whatever render returns last will win
             j2h.app._rendering = renderId;
             
             //Find the parent
@@ -419,8 +460,18 @@
             if( this.querystring ) {
                 let hashes = this.querystring.split('&');
                 for(let i = 0; i < hashes.length; i++) {
-                    let hash = hashes[i].split('=');
-                    this.query[hash[0]] = hash[1];
+
+                    // Split only on the FIRST '=' - `hashes[i].split('=')`
+                    // used to split on EVERY '=', so a value containing one
+                    // (e.g. "token=abc=def", common for base64/JSON values)
+                    // produced ["token","abc","def"] and silently dropped
+                    // everything past the second '=' since only [0]/[1] were
+                    // used ("abc" instead of "abc=def").
+                    let hash = hashes[i];
+                    let eqIndex = hash.indexOf('=');
+
+                    if(eqIndex < 0) this.query[hash] = undefined;
+                    else this.query[hash.substring(0,eqIndex)] = hash.substring(eqIndex+1);
                 }
             }
             
@@ -867,10 +918,16 @@
             Object.keys(base._dependancies)
               .filter(pname=>(valid.indexOf(pname) < 0))
               .map(pname=>{
-                   
+
                   //Remove all keys that this pathname depended on
-                  base._dependancies[pname].map(key=>delete base.all[key]);
-                  
+                  // `key` can be a dotted string OR array path (whatever was
+                  // originally passed to set()/attach()), so use lodash.unset()
+                  // instead of `delete base.all[key]` - a bare delete only
+                  // works for a literal top-level key and silently no-ops
+                  // (leaking state forever) for anything nested, e.g.
+                  // "profile.name".
+                  base._dependancies[pname].map(key=>lodash.unset(base.all,key));
+
                   //Finally remove the dependancy
                   delete base._dependancies[pname];
                });
@@ -901,6 +958,11 @@
             
             //Set the callback events
             base._events[name][id] = callback;
+
+            //Return the generated id so callers can later call remove(name,id)
+            // to unsubscribe - previously missing, so there was no supported
+            // way to unregister a listener from outside the class.
+            return(id);
         }
             
         remove(name,id) {
@@ -982,13 +1044,23 @@
             s.async = true;
             s.onerror = (err)=>reject(err, s);
             s.onload = s.onreadystatechange = ()=>{
-              if (!r && (!this.readyState || this.readyState == 'complete')) {
+              // NOTE: this is an arrow function, so `this` is Module#load's
+              // `this` (the Module instance, which never has a .readyState) -
+              // NOT the script element. Must read readyState off `s` directly,
+              // otherwise the "wait for readyState == complete" check is dead
+              // code and this resolves on the very first readystatechange.
+              if (!r && (!s.readyState || s.readyState == 'complete')) {
                 r = true;
                 resolve();
               }
             };
             const t = document.getElementsByTagName('script')[0];
-            t.parentElement.insertBefore(s, t);
+            // Anchor the new <script> before an existing one when possible
+            // (matches historical behavior), but fall back to appending to
+            // <head> (or the document root) instead of throwing when the
+            // document has no <script> tag yet to anchor against.
+            if(t && t.parentElement) t.parentElement.insertBefore(s, t);
+            else (document.head || document.documentElement).appendChild(s);
           });
         }
     };
@@ -1019,7 +1091,7 @@
             // (if we have one)
             this._prev;
 
-            //Current page we're rendering
+			//Current page we're rendering
             this._rendering;
         }
         

@@ -55,10 +55,10 @@ Simply extend our j2h.Page class, then modify
 +   **data (optional)** async method used to return the data that this page will render
 +   **render (optional)** async method used to interupt the rendering process, great for redirecting the page etc..
 
-Don't forget to specify the render mode by calling the super contructor with either
+Don't forget to specify the render mode by calling the super contructor with
 
 +   **"server"** which will render a flat html page
-+   **"hybrid"**  which renders interactive html that includes events sepcified in your page or components.  json2html will take care of rehydrating these events for you on the client, just make sure to include jquery and json2html on the client! You'll also be able to reference your components on the client (see Components for configuration)
++   **"hybrid"** NOT IMPLEMENTED (yet)
 
 ### Example
 
@@ -138,7 +138,6 @@ Simply extend our j2h.Component class and modify
 +   **template (required)** the template object you want to use to render this page
 
 +   **components (optional)** components object that this component directly uses. You'll need you use a unique name across your project
-+   **client (optional)** (default false) if true then the component will be availabe on the client via json2html.component.get(name) (in hybrid render mode). Otherwise component will not be available on the client.
 
 ### Example
 
