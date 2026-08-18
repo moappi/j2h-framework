@@ -268,6 +268,23 @@ j2h.export("/pages/home.js",(
 ));
 ```
 
+# Testing
+A Mocha + Chai + Sinon test suite covering both halves of j2h-framework: the
+Node/Express server runtime (`lib/*.js`, `node.j2h.js`) and the browser
+runtime (`j2h.js`), including page/component rendering, routing, state
+management, and a set of edge cases
+
+## Running the test suite
+
+```bash
+npm install
+npm test              # server + client (jsdom) - fast, no browser required
+npm run test:server   # server-side only
+npm run test:client   # browser-side only (runs in jsdom)
+npm run test:e2e      # real-browser end-to-end (Playwright + Chromium)
+npm run coverage      # nyc coverage report (text + html in ./coverage)
+```
+
 # Project Status
 We need help!  We'd love help with writing tests, creating better examples or some much needed documentation :)
 
